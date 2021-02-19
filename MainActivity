@@ -1,0 +1,75 @@
+public class MainActivity extends AppCompatActivity {
+
+    TextView timerText, touch_start_stop;
+    ConstraintLayout startStopTapped;
+    Timer timer;
+    TimerTask timerTask;
+    Double time = 0.0;
+    boolean timerStarted = false;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        timerText = findViewById(R.id.timerText);
+        startStopTapped = findViewById(R.id.startStopTapped);
+        touch_start_stop = findViewById(R.id.touch_start_stop);
+        timer = new Timer();
+
+        }
+
+
+    public void resetTapped (View view) {
+        if (timerTask !=null) {
+            timerTask.cancel();
+            time = 0.0;
+            timerStarted = false;
+            timerText.setText(formatTime(0, 0,0,0));
+        }
+    }
+
+    public void startStopTapped(View view) {
+        if(timerStarted == false) {
+            timerStarted = true;
+            touch_start_stop.setText("Touch to pause");
+            startTimer();
+        } else {
+            timerStarted = false;
+            touch_start_stop.setText("Touch to resume");
+            timerTask.cancel();
+        }
+    }
+
+    private void startTimer() {
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        time++;
+                        timerText.setText(getTimerText());
+                    }
+                });
+            }
+        };
+        timer.scheduleAtFixedRate(timerTask, 10, 10);
+    }
+
+    private String getTimerText() {
+        int rounded = (int) Math.round(time);
+        int milliseconds = (rounded % 1000);
+        int seconds = ((rounded % 86400) % 3600) % 60;
+        int minutes = ((rounded % 86400) % 3600) / 60;
+        int hours = ((rounded % 86400) / 3600);
+        return formatTime(milliseconds, seconds, minutes, hours);
+    }
+
+
+    @SuppressLint("DefaultLocale")
+    private  String formatTime(int milliseconds, int seconds, int minutes, int hours) {
+        return  String.format("%02d", hours) + ":" + String.format("%02d", minutes) + ":"
+                + String.format("%02d", seconds) + "." + String.format("%d", milliseconds);
+    }
+}
